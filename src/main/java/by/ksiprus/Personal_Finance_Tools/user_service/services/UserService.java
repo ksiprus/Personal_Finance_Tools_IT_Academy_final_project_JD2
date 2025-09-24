@@ -223,12 +223,48 @@ public class UserService implements IUserService, UserDetailsService {
         log.debug("Попытка входа для пользователя: {}", mail);
         
         User user = userStorage.getByMail(mail);
-        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
-            return createLoginResponse(user);
+        if (user == null) {
+            log.warn("Пользователь с email {} не найден", mail);
+            return null;
         }
         
-        log.warn("Неудачная попытка входа для: {}", mail);
-        return null;
+        // Проверяем пароль
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            log.warn("Неверный пароль для пользователя: {}", mail);
+            return null;
+        }
+        
+        // Проверяем статус пользователя
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            log.warn("Пользователь {} имеет неактивный статус: {}", mail, user.getStatus());
+            return null;
+        }
+        
+        log.info("Успешная авторизация для пользователя: {}", mail);
+        return createLoginResponse(user);
+    }
+    
+    /**
+     * Проверяет возможные причины неудачной авторизации.
+     *
+     * @param mail email пользователя
+     * @return сообщение об ошибке или null для общего сообщения
+     */
+    public String getLoginErrorMessage(String mail) {
+        User user = userStorage.getByMail(mail);
+        if (user == null) {
+            return null; // Общее сообщение о неверных данных
+        }
+        
+        if (user.getStatus() == UserStatus.WAITING_ACTIVATION) {
+            return UserControllerMessages.ACCOUNT_NOT_ACTIVATED_MESSAGE;
+        }
+        
+        if (user.getStatus() == UserStatus.DEACTIVATED) {
+            return UserControllerMessages.ACCOUNT_DEACTIVATED_MESSAGE;
+        }
+        
+        return null; // Общее сообщение
     }
     
     /**

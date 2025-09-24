@@ -115,22 +115,6 @@ public class UserStorage implements IUserStorage {
                 .orElse(null);
     }
 
-    @Override
-    public User login(String mail, String password) {
-        UserEntity found = userRepository.findByMail(mail).orElseThrow();
-        if (!found.getPassword().equals(password)) {
-            return null;
-        }
-        return User.builder()
-                .uuid(found.getUuid())
-                .dt_create(found.getDt_create())
-                .dt_update(found.getDt_update())
-                .mail(found.getMail())
-                .fio(found.getFio())
-                .role(found.getRole())
-                .status(found.getStatus())
-                .password(found.getPassword())
-                .build();
-
-    }
+    // Метод login удален, так как логика авторизации должна быть в UserService
+    // с использованием PasswordEncoder для проверки хешированных паролей
 }

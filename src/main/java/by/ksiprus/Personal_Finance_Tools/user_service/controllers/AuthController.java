@@ -8,6 +8,7 @@ import by.ksiprus.Personal_Finance_Tools.user_service.dto.response.TokenResponse
 import by.ksiprus.Personal_Finance_Tools.user_service.services.ValidationService;
 import by.ksiprus.Personal_Finance_Tools.user_service.services.api.IMailerService;
 import by.ksiprus.Personal_Finance_Tools.user_service.services.api.IUserService;
+import by.ksiprus.Personal_Finance_Tools.user_service.services.UserService;
 import by.ksiprus.Personal_Finance_Tools.user_service.utils.ControllerUtils;
 import by.ksiprus.Personal_Finance_Tools.user_service.utils.ResponseHelper;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,7 +34,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication", description = "API для аутентификации и авторизации")
 public class AuthController {
 
-    private final IUserService userService;
+    private final UserService userService;
     private final IMailerService mailerService;
     private final ValidationService validationService;
 
@@ -94,16 +95,21 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequest request, BindingResult bindingResult) {
         try {
-            String errorMessage = validationService.getValidationErrorMessage(bindingResult);
-            if (errorMessage != null) {
+            String validationErrorMessage = validationService.getValidationErrorMessage(bindingResult);
+            if (validationErrorMessage != null) {
                 log.warn("Получен запрос на авторизацию с некорректными данными");
-                return ResponseHelper.badRequest(UserControllerMessages.VALIDATION_ERROR_MESSAGE + errorMessage);
+                return ResponseHelper.badRequest(UserControllerMessages.VALIDATION_ERROR_MESSAGE + validationErrorMessage);
             }
             
             LoginResponse loginResponse = userService.login(request.getMail(), request.getPassword());
             if (loginResponse == null) {
-                log.warn("Неудачная попытка авторизации");
-                return ResponseHelper.unauthorized(UserControllerMessages.INVALID_CREDENTIALS_MESSAGE);
+                log.warn("Неудачная попытка авторизации для: {}", request.getMail());
+                
+                // Проверяем, есть ли специфичная причина ошибки
+                String specificError = userService.getLoginErrorMessage(request.getMail());
+                String loginErrorMessage = specificError != null ? specificError : UserControllerMessages.INVALID_CREDENTIALS_MESSAGE;
+                
+                return ResponseHelper.unauthorized(loginErrorMessage);
             }
 
             TokenResponse tokenResponse = TokenResponse.builder()

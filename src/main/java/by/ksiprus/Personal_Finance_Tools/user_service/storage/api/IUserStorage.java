@@ -18,5 +18,5 @@ public interface IUserStorage {
 
     User getByMail(String mail);
 
-    User login(String mail, String password);
+    // Метод login удален - логика авторизации в UserService
 }

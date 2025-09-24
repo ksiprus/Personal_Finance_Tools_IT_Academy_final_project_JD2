@@ -19,6 +19,8 @@ public final class UserControllerMessages {
     public static final String INVALID_REQUEST_MESSAGE = "Запрос некорректен. Сервер не может обработать запрос";
     public static final String AUTH_REQUIRED_MESSAGE = "Для выполнения запроса на данный адрес требуется передать токен авторизации";
     public static final String INVALID_CREDENTIALS_MESSAGE = "Неверный email или пароль";
+    public static final String ACCOUNT_NOT_ACTIVATED_MESSAGE = "Аккаунт не активирован. Проверьте почту и пройдите верификацию";
+    public static final String ACCOUNT_DEACTIVATED_MESSAGE = "Аккаунт деактивирован. Обратитесь к администратору";
     public static final String EMAIL_ALREADY_EXISTS_MESSAGE = "Данный email уже занят!";
     
     // Success messages

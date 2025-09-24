@@ -4,7 +4,7 @@ import by.ksiprus.Personal_Finance_Tools.user_service.models.enums.UserRole;
 import by.ksiprus.Personal_Finance_Tools.user_service.models.enums.UserStatus;
 import by.ksiprus.Personal_Finance_Tools.user_service.validations.groups.OnUpdate;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.experimental.SuperBuilder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,7 +17,7 @@ import jakarta.validation.constraints.NotNull;
  * Не содержит поле пароля, так как менеджеры не могут изменять пароли.
  */
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserUpdateByManagerRequest {

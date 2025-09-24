@@ -6,6 +6,7 @@ import by.ksiprus.Personal_Finance_Tools.classifier_service.models.PageOfCurrenc
 import by.ksiprus.Personal_Finance_Tools.classifier_service.services.api.ICurrencyService;
 import by.ksiprus.Personal_Finance_Tools.classifier_service.storage.entity.CurrencyEntity;
 import by.ksiprus.Personal_Finance_Tools.classifier_service.storage.repository.CurrencyRepository;
+import by.ksiprus.Personal_Finance_Tools.classifier_service.utils.ClassifierMapperUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -49,7 +50,7 @@ public class CurrencyService implements ICurrencyService {
         CurrencyEntity saved = currencyRepository.save(entity);
         log.info("Currency created successfully with UUID: {}", saved.getUuid());
         
-        return mapToModel(saved);
+        return ClassifierMapperUtils.mapCurrencyEntityToModel(saved);
     }
     
     @Override
@@ -59,7 +60,7 @@ public class CurrencyService implements ICurrencyService {
         Page<CurrencyEntity> entityPage = currencyRepository.findAll(PageRequest.of(page, size));
         
         List<Currency> content = entityPage.getContent().stream()
-                .map(this::mapToModel)
+                .map(ClassifierMapperUtils::mapCurrencyEntityToModel)
                 .collect(Collectors.toList());
         
         return PageOfCurrency.builder()
@@ -79,7 +80,7 @@ public class CurrencyService implements ICurrencyService {
         log.info("Getting currency by UUID: {}", uuid);
         
         return currencyRepository.findById(uuid)
-                .map(this::mapToModel)
+                .map(ClassifierMapperUtils::mapCurrencyEntityToModel)
                 .orElse(null);
     }
     
@@ -88,17 +89,7 @@ public class CurrencyService implements ICurrencyService {
         log.info("Getting currency by title: {}", title);
         
         return currencyRepository.findByTitle(title.toUpperCase())
-                .map(this::mapToModel)
+                .map(ClassifierMapperUtils::mapCurrencyEntityToModel)
                 .orElse(null);
-    }
-    
-    private Currency mapToModel(CurrencyEntity entity) {
-        return Currency.builder()
-                .uuid(entity.getUuid())
-                .dt_create(entity.getDt_create())
-                .dt_update(entity.getDt_update())
-                .title(entity.getTitle())
-                .description(entity.getDescription())
-                .build();
     }
 }

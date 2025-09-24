@@ -6,6 +6,7 @@ import by.ksiprus.Personal_Finance_Tools.classifier_service.models.PageOfOperati
 import by.ksiprus.Personal_Finance_Tools.classifier_service.services.api.IOperationCategoryService;
 import by.ksiprus.Personal_Finance_Tools.classifier_service.storage.entity.OperationCategoryEntity;
 import by.ksiprus.Personal_Finance_Tools.classifier_service.storage.repository.OperationCategoryRepository;
+import by.ksiprus.Personal_Finance_Tools.classifier_service.utils.ClassifierMapperUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -48,7 +49,7 @@ public class OperationCategoryService implements IOperationCategoryService {
         OperationCategoryEntity saved = operationCategoryRepository.save(entity);
         log.info("Operation category created successfully with UUID: {}", saved.getUuid());
         
-        return mapToModel(saved);
+        return ClassifierMapperUtils.mapOperationCategoryEntityToModel(saved);
     }
     
     @Override
@@ -58,7 +59,7 @@ public class OperationCategoryService implements IOperationCategoryService {
         Page<OperationCategoryEntity> entityPage = operationCategoryRepository.findAll(PageRequest.of(page, size));
         
         List<OperationCategory> content = entityPage.getContent().stream()
-                .map(this::mapToModel)
+                .map(ClassifierMapperUtils::mapOperationCategoryEntityToModel)
                 .collect(Collectors.toList());
         
         return PageOfOperationCategory.builder()
@@ -78,7 +79,7 @@ public class OperationCategoryService implements IOperationCategoryService {
         log.info("Getting operation category by UUID: {}", uuid);
         
         return operationCategoryRepository.findById(uuid)
-                .map(this::mapToModel)
+                .map(ClassifierMapperUtils::mapOperationCategoryEntityToModel)
                 .orElse(null);
     }
     
@@ -87,16 +88,7 @@ public class OperationCategoryService implements IOperationCategoryService {
         log.info("Getting operation category by title: {}", title);
         
         return operationCategoryRepository.findByTitle(title)
-                .map(this::mapToModel)
+                .map(ClassifierMapperUtils::mapOperationCategoryEntityToModel)
                 .orElse(null);
-    }
-    
-    private OperationCategory mapToModel(OperationCategoryEntity entity) {
-        return OperationCategory.builder()
-                .uuid(entity.getUuid())
-                .dt_create(entity.getDt_create())
-                .dt_update(entity.getDt_update())
-                .title(entity.getTitle())
-                .build();
     }
 }
